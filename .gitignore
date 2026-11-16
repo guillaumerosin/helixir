@@ -1,0 +1,19 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
+
+# Données : jamais dans Git
+*.fastq
+*.fastq.gz
+*.fq.gz
+*.bam
+*.cram
+*.sam
+work/
+.nextflow*
+.env

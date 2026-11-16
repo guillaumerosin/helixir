@@ -1,0 +1,43 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "helixir"
+version = "0.1.0"
+description = "Environnements bioinformatiques conteneurisés prêts à l'emploi (NGS, nf-core, ARN, ADN, protéomique...)"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+authors = [{ name = "Guillaume Rosin" }]
+keywords = ["bioinformatics", "docker", "nextflow", "nf-core", "ngs", "rna-seq", "proteomics"]
+classifiers = [
+    "Environment :: Console",
+    "Intended Audience :: Science/Research",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+dependencies = ["rich>=13"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[project.scripts]
+helixir = "helixir.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/guillaumerosin/helixir"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/helixir"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

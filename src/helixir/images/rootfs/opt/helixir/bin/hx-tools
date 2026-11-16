@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Affiche le catalogue des outils installés dans l'image.
+# usage : hx-tools [filtre]    (filtre = domaine ou morceau de nom/description)
+set -euo pipefail
+
+db=/opt/helixir/tools.tsv
+filter=${1:-}
+
+{
+    printf 'DOMAINE\tOUTIL\tVERSION\tSOURCE\tDESCRIPTION\n'
+    if [ -n "$filter" ]; then
+        grep -i -- "$filter" "$db" || true
+    else
+        cat "$db"
+    fi
+} | column -t -s $'\t'

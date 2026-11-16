@@ -1,0 +1,2 @@
+# Les scripts sourcent des chemins qui n'existent que dans l'image (/opt/helixir/...).
+disable=SC1091

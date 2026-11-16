@@ -1,0 +1,29 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  python:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev]"
+      - run: ruff check .
+      - run: pytest -q
+
+  shell:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          shellcheck -x -s bash \
+            src/helixir/images/install/*.sh \
+            src/helixir/images/install/domains/*.sh \
+            src/helixir/images/rootfs/opt/helixir/*.sh \
+            src/helixir/images/rootfs/opt/helixir/bin/*
