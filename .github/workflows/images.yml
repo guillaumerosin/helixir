@@ -32,13 +32,21 @@ jobs:
         with:
           tool-cache: true
 
-      - name: Domaines de la flavor
+      # Même source de vérité que `helixir build` : helixir.flavors.build_args.
+      - name: Arguments de build de la flavor
         id: meta
+        env:
+          FLAVOR: ${{ matrix.flavor }}
+          VERSION: ${{ github.ref_name }}
         run: |
           pip install -e . >/dev/null
           python - <<'EOF' >> "$GITHUB_OUTPUT"
-          from helixir.flavors import get_flavor
-          print("domains=" + " ".join(get_flavor("${{ matrix.flavor }}").domains))
+          import os
+          from helixir.flavors import build_args, get_flavor
+          args = build_args(get_flavor(os.environ["FLAVOR"]), os.environ["VERSION"])
+          print("build_args<<EOF_ARGS")
+          print("\n".join(f"{k}={v}" for k, v in args.items()))
+          print("EOF_ARGS")
           EOF
           echo "owner=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
 
@@ -53,10 +61,7 @@ jobs:
         with:
           context: src/helixir/images
           push: true
-          build-args: |
-            FLAVOR=${{ matrix.flavor }}
-            DOMAINS=${{ steps.meta.outputs.domains }}
-            HELIXIR_VERSION=${{ github.ref_name }}
+          build-args: ${{ steps.meta.outputs.build_args }}
           tags: |
             ghcr.io/${{ steps.meta.outputs.owner }}/helixir:${{ matrix.flavor }}
           cache-from: type=gha,scope=${{ matrix.flavor }}

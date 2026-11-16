@@ -62,6 +62,13 @@ def get_flavor(name: str) -> Flavor:
         raise ValueError(f"flavor inconnue '{name}' (disponibles : {known})") from None
 
 
+def build_args(flavor: Flavor, version: str) -> dict[str, str]:
+    """Arguments `docker build` d'une flavor (utilisés par la CLI et la CI)."""
+    args = {f"WITH_{d.upper()}": "1" for d in flavor.domains if d not in _COMMON}
+    args |= {"FLAVOR": flavor.name, "DOMAINS": " ".join(flavor.domains), "HELIXIR_VERSION": version}
+    return args
+
+
 def remote_ref(flavor: Flavor, registry: str) -> str:
     """Référence de l'image publiée, ex. ghcr.io/user/helixir:rna."""
     return f"{registry.rstrip('/')}:{flavor.name}"

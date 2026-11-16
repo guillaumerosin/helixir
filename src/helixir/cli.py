@@ -16,7 +16,7 @@ from rich.table import Table
 from helixir import __version__, docker
 from helixir.config import Config, load
 from helixir.container import ContainerSpec, build_exec_args, build_run_args
-from helixir.flavors import DOMAINS, FLAVORS, IMAGES_DIR, Flavor, get_flavor, remote_ref
+from helixir.flavors import DOMAINS, FLAVORS, IMAGES_DIR, Flavor, build_args, get_flavor, remote_ref
 
 console = Console()
 err = Console(stderr=True)
@@ -47,11 +47,7 @@ def build_image(flavor: Flavor, *, no_cache: bool = False, pull: bool = False) -
     docker.build(
         str(IMAGES_DIR),
         flavor.local_tag,
-        {
-            "FLAVOR": flavor.name,
-            "DOMAINS": " ".join(flavor.domains),
-            "HELIXIR_VERSION": __version__,
-        },
+        build_args(flavor, __version__),
         no_cache=no_cache,
         pull=pull,
     )

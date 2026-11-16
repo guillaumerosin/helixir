@@ -2,7 +2,7 @@ import re
 
 import pytest
 
-from helixir.flavors import DOMAINS, FLAVORS, IMAGES_DIR, get_flavor, remote_ref
+from helixir.flavors import DOMAINS, FLAVORS, IMAGES_DIR, build_args, get_flavor, remote_ref
 
 INSTALL = IMAGES_DIR / "install"
 
@@ -14,8 +14,32 @@ def test_every_domain_has_an_install_script():
 
 def test_every_domain_is_installed_by_the_dockerfile_in_order():
     dockerfile = (IMAGES_DIR / "Dockerfile").read_text()
-    installed = re.findall(r"^RUN /opt/helixir/install/run\.sh (\w+)$", dockerfile, re.M)
+    installed = re.findall(r"^RUN /opt/helixir/install/run\.sh (\w+) ", dockerfile, re.M)
     assert installed == list(DOMAINS)
+
+
+def test_optional_domains_have_a_switch_declared_just_before_their_layer():
+    lines = (IMAGES_DIR / "Dockerfile").read_text().splitlines()
+    for domain in DOMAINS:
+        if domain in ("base", "core", "nfcore"):
+            assert f"RUN /opt/helixir/install/run.sh {domain} 1" in lines
+            continue
+        switch = f"WITH_{domain.upper()}"
+        run = lines.index(f'RUN /opt/helixir/install/run.sh {domain} "${switch}"')
+        assert lines[run - 1] == f"ARG {switch}=0"
+
+
+def test_build_args():
+    args = build_args(get_flavor("rna"), "0.1.0")
+    assert args == {
+        "WITH_RNA": "1",
+        "WITH_RSTATS": "1",
+        "WITH_SC": "1",
+        "FLAVOR": "rna",
+        "DOMAINS": "base core nfcore rna rstats sc",
+        "HELIXIR_VERSION": "0.1.0",
+    }
+    assert "WITH_DNA" not in build_args(get_flavor("light"), "x")
 
 
 def test_flavors_always_contain_common_domains():

@@ -5,9 +5,11 @@
 #
 # Dans le conteneur, install.packages() passe aussi par apt grâce à bspm.
 
-gpg --homedir /tmp --no-default-keyring --keyring /usr/share/keyrings/r2u.gpg \
-    --keyserver keyserver.ubuntu.com \
-    --recv-keys A1489FE2AB99A21A 67C2D66C4B1D4339 51716619E084DAB9
+# Clés r2u + CRAN récupérées en HTTPS : le protocole HKP (port 11371) de
+# `gpg --recv-keys` est souvent bloqué par les pare-feux.
+for key in A1489FE2AB99A21A 67C2D66C4B1D4339 51716619E084DAB9; do
+    curl -fsSL --retry 5 "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x${key}"
+done | gpg --dearmor -o /usr/share/keyrings/r2u.gpg
 
 cat > /etc/apt/sources.list.d/r2u.sources <<'EOF'
 Types: deb

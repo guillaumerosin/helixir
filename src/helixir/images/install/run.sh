@@ -1,18 +1,17 @@
 #!/usr/bin/env bash
-# Point d'entrée appelé par le Dockerfile pour chaque domaine.
-# Un domaine absent de HELIXIR_DOMAINS est ignoré : un seul Dockerfile
-# produit toutes les images (light, rna, dna, ...), une couche par domaine.
+# Point d'entrée appelé par le Dockerfile pour chaque domaine :
+#   run.sh <domaine> <1|0>
+# Un domaine désactivé (WITH_<DOMAINE>=0) produit une couche vide : un seul
+# Dockerfile construit toutes les images (light, rna, dna, ...).
 set -euo pipefail
 
 domain=$1
+enabled=${2:-0}
 
-case " ${HELIXIR_DOMAINS} " in
-    *" ${domain} "*) ;;
-    *)
-        echo "[helixir] domaine '${domain}' non inclus dans cette image, ignoré"
-        exit 0
-        ;;
-esac
+if [ "$enabled" != "1" ]; then
+    echo "[helixir] domaine '${domain}' non inclus dans cette image, ignoré"
+    exit 0
+fi
 
 export HX_DOMAIN=$domain
 # shellcheck source=lib.sh
